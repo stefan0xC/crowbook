@@ -1,6 +1,10 @@
 ChangeLog
 =========
 
+unreleased
+------------
+* Fix a bug where subscript with tildes (foo~42~) would be rendered as strikethrough
+
 0.17.0 (2025-06-03)
 ---------------
 * Try to get rid of technical debt, including removing features that were half baked and not really useful.
