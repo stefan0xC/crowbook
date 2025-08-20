@@ -201,6 +201,7 @@ impl Parser {
         options.extension.autolink = true;
         options.extension.tasklist = true;
         options.extension.superscript = self.superscript;
+        options.extension.subscript = self.superscript;
         options.extension.footnotes = true;
         options.extension.description_lists = true;
         if self.parse_frontmatter {
