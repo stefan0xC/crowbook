@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2024 Élisabeth HENRY.
+// Copyright (C) 2016-2025 Élisabeth HENRY.
 //
 // This file is part of Crowbook.
 //
@@ -468,7 +468,7 @@ impl<'a> Renderer for LatexRenderer<'a> {
             Token::SoftBreak => Ok(String::from(" ")),
             Token::HardBreak => Ok(String::from("\\mdhardbreak\n")),
             Token::DescriptionList(ref v) => Ok(format!(
-                "\\begin{{description}}
+                "\\begin{{description}}[style=nextline]
 {}
 \\end{{description}}",
                 self.render_vec(v)?
