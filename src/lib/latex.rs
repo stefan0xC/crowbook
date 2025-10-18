@@ -41,6 +41,7 @@ use rust_i18n::t;
 /// LaTeX renderer
 pub struct LatexRenderer<'a> {
     book: &'a Book<'a>,
+    engine: upon::Engine<'a>,
     current_chapter: Number,
     handler: ResourceHandler,
     source: Source,
@@ -56,7 +57,7 @@ pub struct LatexRenderer<'a> {
 
 impl<'a> LatexRenderer<'a> {
     /// Creates new LatexRenderer
-    pub fn new(book: &'a Book) -> LatexRenderer<'a> {
+    pub fn new(book: &'a Book) -> Result<LatexRenderer<'a>> {
         let mut handler = ResourceHandler::new();
         handler.set_images_mapping(true);
         let syntax = if book.options.get_str("rendering.highlight").unwrap() == "syntect"
@@ -70,7 +71,19 @@ impl<'a> LatexRenderer<'a> {
         } else {
             None
         };
-        LatexRenderer {
+
+        // We have to use a different template engine because we need different syntax
+        let template_src = book.get_template("tex.template")?;
+        let engine_syntax = upon::Syntax::builder()
+            .expr("<<", ">>")
+            .block("<#", "#>")
+            .comment("<%", "%>")
+            .build(); 
+        let mut engine = upon::Engine::with_syntax(engine_syntax);
+        engine.add_template("tex.template", template_src)?;
+        engine.add_template("tex.pageref_template",
+                            book.options.get_str("tex.pageref_template").unwrap())?;
+        Ok(LatexRenderer {
             book,
             current_chapter: Number::Default,
             handler,
@@ -83,7 +96,8 @@ impl<'a> LatexRenderer<'a> {
             syntax,
             hyperref: book.options.get_bool("tex.hyperref").unwrap(),
             enum_level: 0,
-        }
+            engine: engine,
+        })
     }
 
     /// Get latex equivalent for HN:
@@ -218,20 +232,13 @@ impl<'a> LatexRenderer<'a> {
             }
         });
 
-        let template_src = self.book.get_template("tex.template")?;
 
-        // We have to use a different template engine because we need different syntax
-        let syntax = upon::Syntax::builder()
-            .expr("<<", ">>")
-            .block("<#", "#>")
-            .comment("<%", "%>")
-            .build(); 
-        let mut engine = upon::Engine::with_syntax(syntax);
-        engine.add_template("tex.template", template_src)?;
-        let template = engine.get_template("tex.template").unwrap();
+
         let mut data = self
             .book
-            .get_metadata(|s| self.render_vec(&Parser::new().parse_inline(s)?))?;
+            .get_metadata(|s| self.render_vec(&Parser::new().parse_inline(s)?))?;        
+        let template = self.engine.get_template("tex.template").unwrap();
+
         data.insert("numbering".into(), numbering.into());
         data.insert("inline_toc".into(),
                     self.book
@@ -526,8 +533,15 @@ impl<'a> Renderer for LatexRenderer<'a> {
 
                 if self.hyperref && self.handler.contains_link(url) {
                     let key = escape::tex(self.handler.get_link(url));
+
+                    let template = self.engine.get_template("tex.pageref_template").unwrap();
+                    let data = upon::value!{
+                        key: &key
+                    };
+                    
                     let footnote = if tex_links_footnotes {
-                        format!("\\footnote{{p\\pageref{{{key}}}}}")
+                        template.render(&data).to_string()?
+//                        format!("\\footnote{{p\\pageref{{{key}}}}}")
                     } else {
                         String::new()
                     };
@@ -650,7 +664,7 @@ impl BookRenderer for Latex {
     }
 
     fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        let mut latex = LatexRenderer::new(book);
+        let mut latex = LatexRenderer::new(book)?;
         let result = latex.render_book()?;
         to.write_all(result.as_bytes()).map_err(|e| {
             Error::render(
@@ -668,7 +682,7 @@ impl BookRenderer for ProofLatex {
     }
 
     fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        let mut latex = LatexRenderer::new(book);
+        let mut latex = LatexRenderer::new(book)?;
         let result = latex.render_book()?;
         to.write_all(result.as_bytes()).map_err(|e| {
             Error::render(
@@ -686,7 +700,7 @@ impl BookRenderer for Pdf {
     }
 
     fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        LatexRenderer::new(book).render_pdf(to)?;
+        LatexRenderer::new(book)?.render_pdf(to)?;
         Ok(())
     }
 }
@@ -697,7 +711,7 @@ impl BookRenderer for ProofPdf {
     }
 
     fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        LatexRenderer::new(book).render_pdf(to)?;
+        LatexRenderer::new(book)?.render_pdf(to)?;
         Ok(())
     }
 }

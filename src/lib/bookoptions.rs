@@ -98,6 +98,7 @@ epub.escape_nb_spaces:bool:true     # {nb_spaces}
 tex.cover:bool:false                # {tex_cover}
 tex.highlight.theme:str             # {tex_theme}
 tex.links_as_footnotes:bool:true    # {tex_links}
+tex.pageref_template:str:\"\\\\footnote{{p\\\\pageref{{<<key>>}}}}\"       # {tex_pageref_tpl}
 tex.command:str:xelatex             # {tex_command}
 tex.escape_nb_spaces:bool:true      # {nb_spaces_tex}
 tex.template:tpl                    # {tex_tmpl}
@@ -282,6 +283,7 @@ output.odt:path                                     # {removed}
 
                                          tex_cover = t!("opt.tex_cover"),
                                          tex_links = t!("opt.tex_links"),
+                                         tex_pageref_tpl = t!("opt.tex_pageref"),
                                          tex_command = t!("opt.tex_command"),
                                          tex_tmpl = t!("opt.tex_tmpl"),
                                          tex_tmpl_add = t!("opt.tex_tmpl_add"),
