@@ -468,7 +468,7 @@ impl<'a> Renderer for LatexRenderer<'a> {
             Token::SoftBreak => Ok(String::from(" ")),
             Token::HardBreak => Ok(String::from("\\mdhardbreak\n")),
             Token::DescriptionList(ref v) => Ok(format!(
-                "\\begin{{description}}[style=nextline]
+                "\\begin{{description}}[style=nextline, labelwidth=0pt]
 {}
 \\end{{description}}",
                 self.render_vec(v)?
