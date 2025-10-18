@@ -518,21 +518,27 @@ impl<'a> Renderer for LatexRenderer<'a> {
             Token::Item(ref vec) => Ok(format!("\\item {}\n", self.render_vec(vec)?)),
             Token::Link(ref url, _, ref vec) => {
                 let content = self.render_vec(vec)?;
+                let tex_links_footnotes = self
+                        .book
+                        .options
+                        .get_bool("tex.links_as_footnotes")
+                        .unwrap();
 
                 if self.hyperref && self.handler.contains_link(url) {
+                    let key = escape::tex(self.handler.get_link(url));
+                    let footnote = if tex_links_footnotes {
+                        format!("\\footnote{{p\\pageref{{{key}}}}}")
+                    } else {
+                        String::new()
+                    };
                     Ok(format!(
-                        "\\hyperref[{}]{{{content}}}",
-                        escape::tex(self.handler.get_link(url)),
+                        "\\hyperref[{key}]{{{content}}}{footnote}",
                     ))
                 } else {
                     let url = escape::tex(url.as_str());
                     if content == url {
                         Ok(format!("\\url{{{content}}}"))
-                    } else if self
-                        .book
-                        .options
-                        .get_bool("tex.links_as_footnotes")
-                        .unwrap()
+                    } else if tex_links_footnotes
                     {
                         Ok(format!(
                             "\\href{{{url}}}{{{content}}}\\protect\\footnote{{\\url{{{url}}}}}"
