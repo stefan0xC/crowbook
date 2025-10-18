@@ -237,6 +237,7 @@ opt:
   titlepage_xhtml: Path of an xhtml template for the title page
   epub_toc: "Add 'Title' and (if set) 'Cover' in the EPUB table of contents"
   tex_links: Add foontotes to URL of links so they are readable when printed
+  tex_pageref: "Template (you can only use the '{{key}}' parameter) for the footnote (or something else) showing the page for the link" 
   tex_command: LaTeX command to use for generating PDF
   tex_tmpl: Path of a LaTeX template file
   tex_tmpl_add: Inline code added in the LaTeX template
