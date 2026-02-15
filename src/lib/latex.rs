@@ -626,10 +626,6 @@ impl<'a> Renderer for LatexRenderer<'a> {
                 Ok(res)
             }
             Token::TableCell(ref vec) => self.render_vec(vec),
-            Token::Annotation(ref _annotation, ref vec) => {
-                let content = self.render_vec(vec)?;
-                Ok(content)
-            }
         }
     }
 }

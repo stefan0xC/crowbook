@@ -423,10 +423,6 @@ impl<'a> HtmlRenderer<'a> {
         T: AsMut<HtmlRenderer<'a>> + AsRef<HtmlRenderer<'a>> + Renderer,
     {
         match *token {
-            Token::Annotation(ref _annotation, ref v) => {
-                let content = this.as_mut().render_vec(v)?;
-                Ok(content)
-            }
             Token::Str(ref text) => {
                 let mut content = if this.as_ref().verbatim {
                     Cow::Borrowed(text.as_ref())

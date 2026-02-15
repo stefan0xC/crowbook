@@ -105,9 +105,6 @@ pub enum Token {
     Image(String, String, Vec<Token>),
     /// Similar to previous, but when image is in a standalone paragraph
     StandaloneImage(String, String, Vec<Token>),
-
-    /// An annotation inserted by crowbook for e.g. grammar checking
-    Annotation(Data, Vec<Token>),
 }
 
 use Token::*;
@@ -147,8 +144,7 @@ impl Token {
             | Image(_, _, ref v)
             | StandaloneImage(_, _, ref v)
             | Strikethrough(ref v)
-            | TaskItem(_, ref v)
-            | Annotation(_, ref v) => Some(v),
+            | TaskItem(_, ref v) => Some(v),
         }
     }
 
@@ -164,7 +160,6 @@ impl Token {
             | FootnoteReference(_) => None,
 
             Paragraph(ref mut v)
-            | Annotation(_, ref mut v)
             | Header(_, ref mut v)
             | Emphasis(ref mut v)
             | Strong(ref mut v)
@@ -231,7 +226,6 @@ impl Token {
                 | Token::TableRow(..)
                 | Token::FootnoteDefinition(..)
                 | Token::TableCell(..)
-                | Token::Annotation(..)
                 | Token::Item(..)
                 | Token::BlockQuote(..)
         )
