@@ -23,7 +23,6 @@ use crate::parser::Parser;
 use crate::renderer::Renderer;
 use crate::resource_handler::ResourceHandler;
 use crate::syntax::Syntax;
-use crate::token::Data;
 use crate::token::Token;
 use crate::zipper::Zipper;
 
@@ -49,7 +48,6 @@ pub struct LatexRenderer<'a> {
     first_letter: bool,
     first_paragraph: bool,
     is_short: bool,
-    proofread: bool,
     syntax: Option<Syntax>,
     hyperref: bool,
     enum_level: usize,
@@ -92,7 +90,6 @@ impl<'a> LatexRenderer<'a> {
             first_letter: false,
             first_paragraph: true,
             is_short: book.options.get_str("tex.class").unwrap() == "article",
-            proofread: false,
             syntax,
             hyperref: book.options.get_bool("tex.hyperref").unwrap(),
             enum_level: 0,
@@ -629,56 +626,20 @@ impl<'a> Renderer for LatexRenderer<'a> {
                 Ok(res)
             }
             Token::TableCell(ref vec) => self.render_vec(vec),
-            Token::Annotation(ref annotation, ref vec) => {
+            Token::Annotation(ref _annotation, ref vec) => {
                 let content = self.render_vec(vec)?;
-                if self.proofread {
-                    match *annotation {
-                        Data::GrammarError(ref s) => Ok(format!(
-                            "\\underline{{{content}}}\\protect\\footnote{{{}}}",
-                            escape::tex(s.as_str())
-                        )),
-                        Data::Repetition(ref colour) => {
-                            if !self.escape && colour == "red" {
-                                Ok(format!("\\underline{{{content}}}"))
-                            } else {
-                                Ok(content)
-                            }
-                        }
-                    }
-                } else {
-                    Ok(content)
-                }
+                Ok(content)
             }
         }
     }
 }
 
 pub struct Latex;
-pub struct ProofLatex;
 pub struct Pdf;
-pub struct ProofPdf;
 
 impl BookRenderer for Latex {
     fn auto_path(&self, book_name: &str) -> Result<String> {
         Ok(format!("{book_name}.tex"))
-    }
-
-    fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        let mut latex = LatexRenderer::new(book)?;
-        let result = latex.render_book()?;
-        to.write_all(result.as_bytes()).map_err(|e| {
-            Error::render(
-                &book.source,
-                t!("latex.write_error", error = e),
-            )
-        })?;
-        Ok(())
-    }
-}
-
-impl BookRenderer for ProofLatex {
-    fn auto_path(&self, book_name: &str) -> Result<String> {
-        Ok(format!("{book_name}.proof.tex"))
     }
 
     fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
@@ -705,16 +666,6 @@ impl BookRenderer for Pdf {
     }
 }
 
-impl BookRenderer for ProofPdf {
-    fn auto_path(&self, book_name: &str) -> Result<String> {
-        Ok(format!("{book_name}.proof.pdf"))
-    }
-
-    fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        LatexRenderer::new(book)?.render_pdf(to)?;
-        Ok(())
-    }
-}
 
 /// Insert possible breaks after characters '-', '/', '_', '.', ... to avoid code exploding
 /// the page
