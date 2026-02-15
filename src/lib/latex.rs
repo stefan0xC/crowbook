@@ -22,9 +22,11 @@ use crate::number::Number;
 use crate::parser::Parser;
 use crate::renderer::Renderer;
 use crate::resource_handler::ResourceHandler;
+use crate::resource_handler;
 use crate::syntax::Syntax;
 use crate::token::Token;
 use crate::zipper::Zipper;
+
 
 use crowbook_text_processing::escape;
 
@@ -36,6 +38,7 @@ use std::io;
 use std::io::Read;
 use std::iter::Iterator;
 use rust_i18n::t;
+use std::path::Path;
 
 /// LaTeX renderer
 pub struct LatexRenderer<'a> {
@@ -144,6 +147,42 @@ impl<'a> LatexRenderer<'a> {
             zipper.write(dest, &content, true)?;
         }
 
+        // TODO: This code is very similar to html_dir or epub's one, factorize?
+        if let Ok(list) = self.book.options.get_str_vec("resources.files") {
+            let base_path_files = self
+                .book
+                .options
+                .get_path("resources.base_path.files")
+                .unwrap();
+            let list = resource_handler::get_files(list, &base_path_files)?;
+            let data_path = Path::new(
+                self.book
+                    .options
+                    .get_relative_path("resources.out_path")?,
+            );
+            for path in list {
+                let abs_path = Path::new(&base_path_files).join(&path);
+                let mut f = fs::canonicalize(&abs_path)
+                    .and_then(File::open)
+                    .map_err(|_| {
+                        Error::file_not_found(
+                            &self.book.source,
+                            t!("latex.resources"),
+                            abs_path.to_string_lossy().into_owned(),
+                        )
+                    })?;
+                let mut content = vec![];
+                f.read_to_end(&mut content).map_err(|e| {
+                    Error::render(
+                        &self.book.source,
+                        t!("latex.resource_error", error = e),
+                    )
+                })?;
+                zipper.write(data_path.join(&path).to_str().unwrap(), &content, true)?;
+            }
+        }
+
+        
         zipper.generate_pdf(
             self.book.options.get_str("tex.command").unwrap(),
             "result.tex",

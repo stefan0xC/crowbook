@@ -183,6 +183,8 @@ impl Zipper {
 
 impl Drop for Zipper {
     fn drop(&mut self) {
+//        println!("Dir not deleted: {}", self.path.to_string_lossy());
+//        return;
         if let Err(err) = fs::remove_dir_all(&self.path) {
             println!(
                 "Error in zipper: could not delete temporary directory {}, error: {}",
