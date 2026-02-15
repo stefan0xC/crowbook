@@ -5,6 +5,8 @@ unreleased
 ------------
 * Fix a bug where subscript with tildes (foo~42~) would be rendered as strikethrough
 * Add `tex.pageref.template` option.
+* Fix a bug when a paragraph was empty
+* Fix LaTeX handling of `resources.files`
 
 0.17.0 (2025-06-03)
 ---------------
