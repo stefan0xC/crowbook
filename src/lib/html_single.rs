@@ -52,12 +52,6 @@ impl<'a> HtmlSingleRenderer<'a> {
         Ok(HtmlSingleRenderer { html })
     }
 
-    /// Set aproofreading to true
-    pub fn proofread(mut self) -> HtmlSingleRenderer<'a> {
-        self.html.proofread = true;
-        self
-    }
-
     /// Renders a token
     ///
     /// Used by render_token implementation of Renderer trait. Separate function
@@ -333,7 +327,6 @@ impl<'a> HtmlSingleRenderer<'a> {
 derive_html! {HtmlSingleRenderer<'a>, HtmlSingleRenderer::static_render_token}
 
 pub struct HtmlSingle {}
-pub struct ProofHtmlSingle {}
 
 impl BookRenderer for HtmlSingle {
     fn auto_path(&self, book_name: &str) -> Result<String> {
@@ -353,20 +346,3 @@ impl BookRenderer for HtmlSingle {
     }
 }
 
-impl BookRenderer for ProofHtmlSingle {
-    fn auto_path(&self, book_name: &str) -> Result<String> {
-        Ok(format!("{book_name}.proof.html"))
-    }
-
-    fn render(&self, book: &Book, to: &mut dyn io::Write) -> Result<()> {
-        let mut html = HtmlSingleRenderer::new(book)?.proofread();
-        let result = html.render_book()?;
-        to.write_all(result.as_bytes()).map_err(|e| {
-            Error::render(
-                &book.source,
-                t!("html.write_error", error = e),
-            )
-        })?;
-        Ok(())
-    }
-}

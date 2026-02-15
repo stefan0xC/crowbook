@@ -25,7 +25,6 @@ use crate::parser::Parser;
 use crate::renderer::Renderer;
 use crate::resource_handler::ResourceHandler;
 use crate::syntax::Syntax;
-use crate::token::Data;
 use crate::token::Token;
 use crate::text_view;
 
@@ -70,9 +69,6 @@ pub struct HtmlRenderer<'a> {
 
     /// Book that must be rendered
     pub book: &'a Book<'a>,
-
-    /// Proofread or not
-    pub proofread: bool,
 
     /// Current part, chapter (and subsection, subsubsection and so on)
     #[doc(hidden)]
@@ -160,7 +156,6 @@ impl<'a> HtmlRenderer<'a> {
             source: Source::empty(),
             first_letter: false,
             first_paragraph: true,
-            proofread: false,
             syntax,
             highlight,
             part_template_html: book.compile_str(
@@ -428,31 +423,9 @@ impl<'a> HtmlRenderer<'a> {
         T: AsMut<HtmlRenderer<'a>> + AsRef<HtmlRenderer<'a>> + Renderer,
     {
         match *token {
-            Token::Annotation(ref annotation, ref v) => {
+            Token::Annotation(ref _annotation, ref v) => {
                 let content = this.as_mut().render_vec(v)?;
-                if this.as_ref().proofread {
-                    match *annotation {
-                        Data::GrammarError(ref s) => Ok(format!(
-                            "<span title = \"{}\" class = \"grammar-error\">{}</span>",
-                            html_escape::encode_double_quoted_attribute(s.as_str()),
-                            content
-                        )),
-                        Data::Repetition(ref colour) => {
-                            if !this.as_ref().verbatim {
-                                Ok(format!(
-                                    "<span class = \"repetition\" \
-                                            style = \"text-decoration-line: underline; \
-                                            text-decoration-style: wavy; \
-                                            text-decoration-color: {colour}\">{content}</span>"
-                                ))
-                            } else {
-                                Ok(content)
-                            }
-                        }
-                    }
-                } else {
-                    Ok(content)
-                }
+                Ok(content)
             }
             Token::Str(ref text) => {
                 let mut content = if this.as_ref().verbatim {

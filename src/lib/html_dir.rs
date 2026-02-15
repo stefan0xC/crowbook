@@ -454,15 +454,7 @@ impl<'a> HtmlDirRenderer<'a> {
 
     // Write content to a file
     fn write_file(&self, file: &str, content: &[u8]) -> Result<()> {
-        let dir_name = if self.html.proofread {
-            self.html
-                .book
-                .options
-                .get_path("output.proofread.html.dir")
-                .unwrap()
-        } else {
-            self.html.book.options.get_path("output.html.dir").unwrap()
-        };
+        let dir_name = self.html.book.options.get_path("output.html.dir").unwrap();
         let dest_path = PathBuf::from(&dir_name);
         assert!(dest_path.starts_with(dir_name),
                 "multifile HTML renderer is asked to create a file ({dest_path}) outside of its directory, no way!",
