@@ -1,10 +1,10 @@
 [package]
 name = "crowbook"
-version = "0.17.0"
+version = "0.17.1"
 edition = "2021"
-authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
+authors = ["Lizzie Crowdagger <lizzie@crowdagger.fr"]
 description = "Render a Markdown book in HTML, PDF or Epub"
-repository = "https://github.com/lise-henry/crowbook"
+repository = "https://github.com/crowdagger/crowbook"
 documentation = "https://docs.rs/crowbook/"
 readme = "README.md"
 keywords = ["markdown", "book"]
@@ -12,7 +12,7 @@ categories = ["command-line-utilities", "text-processing"]
 license = "LGPL-2.1+"
 publish = true
 autobins = false
-rust-version = "1.79"
+rust-version = "1.88"
 
 exclude = [
     "docs/*",
@@ -21,10 +21,6 @@ exclude = [
     ".travis.yml",
     "appveyor.yml",
 ]
-
-[badges]
-travis-ci = { repository = "lise-henry/crowbook" }
-appveyor = { repository = "lise-henry/crowbook" }
 
 [lib]
 name = "crowbook"
@@ -54,14 +50,14 @@ base64 = "0.22"
 rayon = "1.6"
 crowbook-text-processing = "^1.1.1"
 lazy_static = "1"
-roman-numerals-rs = "3.1.0"
+roman-numerals-rs = "4"
 epub-builder = "0.8"
 log = "0.4"
 punkt = { version = "1.0", optional = true }
 hyphenation = { version = "0.8", optional = true, features = ["embed_all"] }
 textwrap = { version = "0.16", optional = true }
-indicatif = { version = "0.17", optional = true }
-console = { version = "0.15", optional = true }
+indicatif = { version = "0.18", optional = true }
+console = { version = "0.16", optional = true }
 clap = { version = "4", optional = true }
 simplelog = { version = "0.12", optional = true }
 syntect = { version = "5", optional = true }
