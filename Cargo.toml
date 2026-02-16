@@ -41,7 +41,7 @@ nightly = ["punkt", "hyphenation"]
 rust-i18n = "3"
 html-escape = "0.2"
 mime_guess = "2"
-comrak = "0.39"
+comrak = "0.50"
 yaml-rust = "0.4"
 upon = "0.7"
 uuid = { version = "1", features = ["v4"] }

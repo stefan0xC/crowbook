@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023, 2025 Élisabeth HENRY.
+// Copyright (C) 2016-2026 Lizzie Crowdagger
 //
 // This file is part of Crowbook.
 //
@@ -27,7 +27,7 @@ use std::ops::BitOr;
 use std::path::Path;
 
 use comrak::nodes::{AstNode, ListType, NodeValue};
-use comrak::{parse_document, Arena, ComrakOptions};
+use comrak::{parse_document, Arena};
 use rust_i18n::t;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -193,7 +193,7 @@ impl Parser {
         let arena = Arena::new();
 
         // Set options for comrak
-        let mut options = ComrakOptions::default();
+        let mut options = comrak::options::Options::default();
         options.render.hardbreaks = false;
         options.parse.smart = false;
         options.extension.strikethrough = true;
@@ -327,7 +327,7 @@ impl Parser {
             }
             NodeValue::Text(ref text) => {
                 let text = text.clone();
-                vec![Token::Str(text)]
+                vec![Token::Str(text.to_string())]
             }
             NodeValue::Code(ref code) => {
                 let text = code.literal.clone();
@@ -338,7 +338,7 @@ impl Parser {
             NodeValue::Emph => vec![Token::Emphasis(inner)],
             NodeValue::TaskItem(c) => {
                 self.features.taskitem = true;
-                let checked = if c.is_some() { true } else { false };
+                let checked = if c.symbol.is_some() { true } else { false };
                 vec![Token::TaskItem(checked, inner)]
             }
             NodeValue::Strong => vec![Token::Strong(inner)],
@@ -376,6 +376,11 @@ impl Parser {
                 // TODO: actually use alignments)
                 vec![Token::Table(aligns.alignments.len() as i32, inner)]
             }
+            NodeValue::HeexBlock(_) |
+            NodeValue::HeexInline(_) |
+            NodeValue::Highlight |
+            NodeValue::ShortCode(_) |
+            NodeValue::Subtext |
             NodeValue::Escaped |
             NodeValue::WikiLink(_) |
             NodeValue::Math(_) |
