@@ -1,4 +1,4 @@
-// Copyright (C) 2016, 2023 Élisabeth HENRY.
+// Copyright (C) 2016-2026 Lizzie Crowdagger
 //
 // This file is part of Crowbook.
 //
@@ -323,7 +323,7 @@ impl<'a> HtmlDirRenderer<'a> {
             }
 
 
-            let res = template.render(&data).to_string()?;
+            let res = template.render(&self.html.book.registry, &data).to_string()?;
             self.write_file(&filenamer(i), res.as_bytes())?;
         }
 
@@ -426,7 +426,7 @@ impl<'a> HtmlDirRenderer<'a> {
             &self.html.book.source,
             "html.dir.template",
         )?;
-        let res = template.render(&data).to_string()?;
+        let res = template.render(&self.html.book.registry, &data).to_string()?;
         self.write_file("index.html", res.as_bytes())?;
 
         Ok(())
@@ -446,7 +446,7 @@ impl<'a> HtmlDirRenderer<'a> {
         let html_css_add = self.html.book.options.get_str("html.css.add").unwrap_or("".into());
         data.insert("additional_code".into(), html_css_add.into());
         
-        let css = template_css.render(&data).to_string()?;
+        let css = template_css.render(&self.html.book.registry, &data).to_string()?;
 
         // Write it
         self.write_file("stylesheet.css", css.as_bytes())

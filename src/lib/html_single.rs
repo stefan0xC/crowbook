@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023 Élisabeth HENRY.
+// Copyright (C) 2016-2026 Lizzie Crowdagger
 //
 // This file is part of Crowbook.
 //
@@ -228,7 +228,7 @@ impl<'a> HtmlSingleRenderer<'a> {
         } else {
             data.insert("additional_code".into(), "".into());
         }
-        let css = template_css.render(&data).to_string()?;
+        let css = template_css.render(&self.html.book.registry, &data).to_string()?;
 
 
         // Render the JS
@@ -257,7 +257,7 @@ impl<'a> HtmlSingleRenderer<'a> {
             "common_script".into(),
             self.html.book.get_template("html.js").unwrap().into(),
         );
-        let js = template_js.render(&data).to_string()?;
+        let js = template_js.render(&self.html.book.registry, &data).to_string()?;
 
         // Render the HTML document
         let mut data = self
@@ -320,7 +320,7 @@ impl<'a> HtmlSingleRenderer<'a> {
             &self.html.book.source,
             "html.standalone.template",
         )?;
-        Ok(template.render(&data).to_string()?)
+        Ok(template.render(&self.html.book.registry, &data).to_string()?)
     }
 }
 

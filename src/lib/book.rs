@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023 Élisabeth HENRY.
+// Copyright (C) 2016-2026 Lizzie Crowdagger
 //
 // This file is part of Crowbook.
 //
@@ -165,8 +165,8 @@ impl<'a> Book<'a> {
         };
 
         // Add some filters to registry that are useful for some templates
-        book.registry.add_filter("eq", str::eq);
-        book.registry.add_filter("starts", |a: &str, b: &str| a.starts_with(b));
+        book.registry.add_function("eq", upon::Value::eq);
+        book.registry.add_function("starts", |a: &str, b: &str| a.starts_with(b));
 
         book.add_format(
             "html",
@@ -1298,7 +1298,7 @@ impl<'a> Book<'a> {
     }
 
     /// Calls upon::engine::compile, does NOT register the compiled template 
-    pub fn compile_str<'s, O>(&self, template: &'s str, source: O, template_name: &str) -> Result<upon::Template<'_, 's>>
+    pub fn compile_str<'s, O>(&self, template: &'s str, source: O, template_name: &str) -> Result<upon::Template<'s>>
     where
         O: Into<Source>,
     {

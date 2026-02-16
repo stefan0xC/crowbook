@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023 Élisabeth HENRY.
+// Copyright (C) 2016-2026 Lizzie Crowdagger
 //
 // This file is part of Crowbook.
 //
@@ -245,7 +245,7 @@ impl<'a> EpubRenderer<'a> {
         let epub_css_add = self.html.book.options.get_str("epub.css.add").unwrap_or("".into()); 
         data.insert("additional_code".into(), epub_css_add.into());
         
-        let css = template_css.render(&data).to_string()?;
+        let css = template_css.render(&self.html.book.registry, &data).to_string()?;
         maker.stylesheet(css.as_bytes())
             .map_err(|err| Error::render(Source::empty(), format!("{}", err)))?;
 
@@ -318,7 +318,7 @@ impl<'a> EpubRenderer<'a> {
             .html
             .book
             .get_metadata(|s| self.render_vec(&Parser::new().parse_inline(s)?))?;
-        Ok(template.render(&data).to_string()?)
+        Ok(template.render(&self.html.book.registry, &data).to_string()?)
     }
 
     /// Render cover.xhtml
@@ -348,7 +348,7 @@ impl<'a> EpubRenderer<'a> {
                         .handler
                         .map_image(&self.html.source, Cow::Owned(cover))?
                         .into());
-            Ok(template.render(&data).to_string()?)
+            Ok(template.render(&self.html.book.registry, &data).to_string()?)
         } else {
             unreachable!();
         }
@@ -407,7 +407,7 @@ impl<'a> EpubRenderer<'a> {
         data.insert("content".into(), content.into());
         data.insert("chapter_title_raw".into(), self.chapter_title_raw.clone(). into());
         data.insert("chapter_title".into(), std::mem::take(&mut self.chapter_title).into());
-        Ok((template.render(&data).to_string()?,
+        Ok((template.render(&self.html.book.registry, &data).to_string()?,
             std::mem::take(&mut self.chapter_title_raw)))
     }
 

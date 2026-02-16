@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2024 Élisabeth HENRY.
+// Copyright (C) 2016-2026 Lizzie Crowdagger
 //
 // This file is part of Crowbook.
 //
@@ -107,8 +107,8 @@ pub struct HtmlRenderer<'a> {
 
     syntax: Option<Syntax>,
 
-    part_template_html: upon::Template<'a, 'a>,
-    chapter_template_html: upon::Template<'a, 'a>,
+    part_template_html: upon::Template<'a>,
+    chapter_template_html: upon::Template<'a>,
 }
 
 impl<'a> HtmlRenderer<'a> {
@@ -283,7 +283,7 @@ impl<'a> HtmlRenderer<'a> {
                     title: data.title,
                     link: format!("{}", self.link_number)
                 };
-                Ok(template.render(&data).to_string()?)
+                Ok(template.render(&self.book.registry, &data).to_string()?)
             }
         } else {
             Ok(format!(
@@ -646,7 +646,7 @@ impl<'a> HtmlRenderer<'a> {
         }
         let data = self.book.get_metadata(|s| Ok(s.to_owned()))?;
         let template = self.book.compile_str(s, &self.book.source, "")?;
-        Ok(template.render(&data).to_string()?)
+        Ok(template.render(&self.book.registry, &data).to_string()?)
     }
 
     /// Renders the toc name
@@ -661,7 +661,7 @@ impl<'a> HtmlRenderer<'a> {
             .get_str("rendering.inline_toc.name")
             .unwrap();
         let template = self.book.compile_str(template, &self.book.source, "rendering.inline_toc.name")?;
-        Ok(template.render(&data).to_string()?)
+        Ok(template.render(&self.book.registry, &data).to_string()?)
     }
 
     /// Render a section containing schema.org JSON-LD code

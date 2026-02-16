@@ -43,7 +43,7 @@ html-escape = "0.2"
 mime_guess = "2"
 comrak = "0.50"
 yaml-rust = "0.4"
-upon = "0.7"
+upon = { version = "0.10", features = ["syntax"] }
 uuid = { version = "1", features = ["v4"] }
 walkdir = "2"
 base64 = "0.22"
